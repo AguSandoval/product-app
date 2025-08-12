@@ -12,10 +12,7 @@ export default function RootLayout() {
 
     const queryClient = new QueryClient();
 
-    if (!loaded) {
-        // Async font loading only occurs in development.
-        return null;
-    }
+    if (!loaded) return null;
 
     return (
         <QueryClientProvider client={queryClient}>
