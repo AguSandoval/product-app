@@ -1,5 +1,11 @@
 import { api } from "../client";
-import { mapProductFromApi, Product } from "./mapper";
+import {
+    Category,
+    mapCategoryFromApi,
+    mapProductFromApi,
+    Product,
+} from "./mapper";
+
 import { CategoryApiResponse, ProductsApiResponse } from "./types";
 
 export const getProducts = async (): Promise<Product[]> => {
@@ -7,9 +13,9 @@ export const getProducts = async (): Promise<Product[]> => {
     return res.data.products.map(mapProductFromApi);
 };
 
-export const getCategories = async (): Promise<string[]> => {
+export const getCategories = async (): Promise<Category[]> => {
     const res = await api.get<CategoryApiResponse>("/products/categories");
-    return res.data;
+    return res.data.map(mapCategoryFromApi);
 };
 
 export const getProductsByCategory = async (
