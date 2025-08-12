@@ -1,32 +1,30 @@
-import { useQuery } from "@tanstack/react-query";
-import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
-
-import {
-    getCategories,
-    getProducts,
-    getProductsByCategory,
-} from "@/api/products/services";
+import { getCategories } from "@/api/products/services";
 import { CategoryFilter } from "@/components/CategoryFilter";
+import { MessageBox } from "@/components/MessageBox";
+import { ProductSortControls } from "@/components/ProductSortControls";
+import Spinner from "@/components/Spinner";
+import { useProductFilter } from "@/hooks/useProductFilter";
+
 import { FlashList } from "@shopify/flash-list";
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import React from "react";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(
-        null
-    );
-
     const categoriesQuery = useQuery({
         queryKey: ["categories"],
         queryFn: getCategories,
     });
 
-    const productsQuery = useQuery({
-        queryKey: ["products", selectedCategory],
-        queryFn: () =>
-            selectedCategory
-                ? getProductsByCategory(selectedCategory)
-                : getProducts(),
-    });
+    const {
+        selectedCategory,
+        setSelectedCategory,
+        sortOption,
+        setSortOption,
+        sortedProducts,
+        isLoading,
+        isError,
+    } = useProductFilter();
 
     return (
         <View style={styles.container}>
@@ -36,46 +34,56 @@ export default function HomeScreen() {
                     selected={selectedCategory}
                     onSelect={setSelectedCategory}
                 />
+                <ProductSortControls
+                    sortOption={sortOption}
+                    onChangeSort={setSortOption}
+                />
             </View>
 
-            {productsQuery.isLoading && (
-                <View
-                    style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 50,
-                        backgroundColor: "rgba(255, 255, 255, 0.5)",
-                    }}
-                >
-                    <ActivityIndicator color="indigo" />
-                </View>
+            {isLoading && <Spinner withOverlay />}
+
+            {isError && (
+                <MessageBox
+                    type="error"
+                    message="Error loading products. Please try again."
+                />
             )}
 
-            <FlashList
-                data={productsQuery.data}
-                keyExtractor={(item) => item.id.toString()}
-                estimatedItemSize={100}
-                renderItem={({ item }) => (
-                    <View style={styles.item}>
-                        <Image
-                            source={{ uri: item.thumbnail }}
-                            style={styles.thumbnail}
-                        />
-                        <View style={styles.info}>
-                            <Text numberOfLines={1} style={styles.title}>
-                                {item.title}
-                            </Text>
-                            <Text style={styles.price}>${item.price}</Text>
+            <View
+                style={{
+                    // padding: 12,
+                    flex: 1,
+                }}
+            >
+                <FlashList
+                    data={sortedProducts}
+                    keyExtractor={(item) => item.id.toString()}
+                    estimatedItemSize={100}
+                    renderItem={({ item }) => (
+                        <View style={styles.item}>
+                            <Image
+                                source={{ uri: item.thumbnail }}
+                                style={styles.thumbnail}
+                            />
+                            <View style={styles.info}>
+                                <Text numberOfLines={1} style={styles.title}>
+                                    {item.title}
+                                </Text>
+                                <Text style={styles.price}>${item.price}</Text>
+                            </View>
                         </View>
-                    </View>
-                )}
-                contentContainerStyle={{ paddingBottom: 120 }}
-            />
+                    )}
+                    contentContainerStyle={{ paddingBottom: 120 }}
+                    ListEmptyComponent={() =>
+                        !isLoading && !isError ? (
+                            <MessageBox
+                                type="empty"
+                                message="No products found."
+                            />
+                        ) : null
+                    }
+                />
+            </View>
         </View>
     );
 }
