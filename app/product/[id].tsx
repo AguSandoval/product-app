@@ -1,4 +1,5 @@
 import { getProductById } from "@/api/products/services";
+import { MessageBox } from "@/components/MessageBox";
 import Spinner from "@/components/Spinner";
 import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
@@ -27,9 +28,10 @@ export default function ProductDetailScreen() {
     if (isError || !product) {
         return (
             <View style={styles.center}>
-                <Text style={styles.errorText}>
-                    Error loading product. Please try again.
-                </Text>
+                <MessageBox
+                    type="error"
+                    message="Error loading product details. Please try again."
+                />
             </View>
         );
     }
@@ -49,12 +51,12 @@ export default function ProductDetailScreen() {
                     }}
                 />
                 <Text style={styles.title}>{product.title}</Text>
-                <Text style={styles.brand}>Marca: {product.brand}</Text>
-                <Text style={styles.price}>Precio: ${product.price}</Text>
+                <Text style={styles.brand}>Brand: {product.brand}</Text>
+                <Text style={styles.price}>Price: ${product.price}</Text>
                 <Text style={styles.stock}>
                     {product.stock > 0
-                        ? `En stock: ${product.stock}`
-                        : "Sin stock"}
+                        ? `Availability: ${product.stock}`
+                        : "Out of stock"}
                 </Text>
                 <Text style={styles.description}>{product.description}</Text>
             </ScrollView>
