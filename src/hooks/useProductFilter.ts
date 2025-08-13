@@ -30,6 +30,7 @@ export function useProductFilter() {
         const productsCopy = [...productsQuery.data];
 
         // TODO: this logic is kinda repetitive, but was easy to implement, I might refactor it
+        // HINT: api also provides sorting options, so we could use that instead
         switch (sortOption) {
             case "price_asc":
                 productsCopy.sort((a, b) => a.price - b.price);

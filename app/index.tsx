@@ -7,8 +7,10 @@ import { useProductFilter } from "@/hooks/useProductFilter";
 
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
+import { Image } from "expo-image";
+import { router } from "expo-router";
 import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
     const categoriesQuery = useQuery({
@@ -51,7 +53,6 @@ export default function HomeScreen() {
 
             <View
                 style={{
-                    // padding: 12,
                     flex: 1,
                 }}
             >
@@ -60,10 +61,27 @@ export default function HomeScreen() {
                     keyExtractor={(item) => item.id.toString()}
                     estimatedItemSize={100}
                     renderItem={({ item }) => (
-                        <View style={styles.item}>
+                        <TouchableOpacity
+                            style={styles.item}
+                            onPress={() =>
+                                router.push({
+                                    pathname: `/product/[id]`,
+                                    params: {
+                                        id: item.id.toString(),
+                                        title: item.title || "",
+                                    },
+                                })
+                            }
+                        >
                             <Image
-                                source={{ uri: item.thumbnail }}
+                                source={item.thumbnail}
                                 style={styles.thumbnail}
+                                contentFit="contain"
+                                transition={{
+                                    duration: 100,
+                                    timing: "ease-in-out",
+                                    effect: "cross-dissolve",
+                                }}
                             />
                             <View style={styles.info}>
                                 <Text numberOfLines={1} style={styles.title}>
@@ -71,7 +89,7 @@ export default function HomeScreen() {
                                 </Text>
                                 <Text style={styles.price}>${item.price}</Text>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     )}
                     contentContainerStyle={{ paddingBottom: 120 }}
                     ListEmptyComponent={() =>

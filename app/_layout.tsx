@@ -18,6 +18,7 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
             <ThemeProvider value={DefaultTheme}>
                 <Stack>
+                    <Stack.Screen name="product/[id]" options={{ title: "" }} />
                     <Stack.Screen name="+not-found" />
                 </Stack>
                 <StatusBar style="auto" />

@@ -27,7 +27,7 @@ export const getProductsByCategory = async (
     return res.data.products.map(mapProductFromApi);
 };
 
-export const getProductById = async (id: number): Promise<Product> => {
+export const getProductById = async (id: number | string): Promise<Product> => {
     const res = await api.get(`/products/${id}`);
     return mapProductFromApi(res.data);
 };
