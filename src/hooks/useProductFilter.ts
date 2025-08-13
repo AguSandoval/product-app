@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useCallback, useMemo, useState } from "react";
 
+import { Product } from "@/api/products/mapper";
 import { getProducts, getProductsByCategory } from "@/api/products/services";
-import { useQuery } from "@tanstack/react-query";
 
 type SortOption =
     | "price_asc"
@@ -10,42 +11,63 @@ type SortOption =
     | "rating_desc"
     | null;
 
+interface ProductsPage {
+    products: Product[];
+    skip: number;
+}
+
+const PAGE_SIZE = 10;
+
 export function useProductFilter() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(
         null
     );
     const [sortOption, setSortOption] = useState<SortOption>(null);
 
-    const productsQuery = useQuery({
-        queryKey: ["products", selectedCategory],
-        queryFn: () =>
+    const fetchProducts = useCallback(
+        (pageParam: number) =>
             selectedCategory
-                ? getProductsByCategory(selectedCategory)
-                : getProducts(),
+                ? getProductsByCategory(selectedCategory, PAGE_SIZE, pageParam)
+                : getProducts(PAGE_SIZE, pageParam),
+        [selectedCategory]
+    );
+
+    const productsQuery = useInfiniteQuery<ProductsPage>({
+        queryKey: ["products", selectedCategory],
+        initialPageParam: 0,
+        queryFn: ({ pageParam }) => {
+            return fetchProducts(pageParam as number);
+        },
+        getNextPageParam: (lastPage: ProductsPage) => {
+            if (lastPage.products.length < PAGE_SIZE) return undefined;
+            return lastPage.skip + PAGE_SIZE;
+        },
     });
 
-    const sortedProducts = useMemo(() => {
+    const allProducts = useMemo(() => {
         if (!productsQuery.data) return [];
+        const combined = productsQuery.data.pages.flatMap(
+            (page) => page.products
+        );
 
-        const productsCopy = [...productsQuery.data];
-
-        // TODO: this logic is kinda repetitive, but was easy to implement, I might refactor it
-        // HINT: api also provides sorting options, so we could use that instead
         switch (sortOption) {
             case "price_asc":
-                productsCopy.sort((a, b) => a.price - b.price);
+                combined.sort((a, b) => a.price - b.price);
                 break;
             case "price_desc":
-                productsCopy.sort((a, b) => b.price - a.price);
+                combined.sort((a, b) => b.price - a.price);
                 break;
             case "rating_asc":
-                productsCopy.sort((a, b) => a.rating - b.rating);
+                combined.sort((a, b) => a.rating - b.rating);
                 break;
             case "rating_desc":
-                productsCopy.sort((a, b) => b.rating - a.rating);
+                combined.sort((a, b) => b.rating - a.rating);
+                break;
+            default:
                 break;
         }
-        return productsCopy;
+
+        return combined;
     }, [productsQuery.data, sortOption]);
 
     return {
@@ -53,8 +75,11 @@ export function useProductFilter() {
         setSelectedCategory,
         sortOption,
         setSortOption,
-        sortedProducts,
-        isLoading: productsQuery.isLoading,
+        sortedProducts: allProducts,
+        isLoading: productsQuery.isLoading && !productsQuery.data,
         isError: productsQuery.isError,
+        fetchNextPage: productsQuery.fetchNextPage,
+        hasNextPage: productsQuery.hasNextPage,
+        isFetchingNextPage: productsQuery.isFetchingNextPage,
     };
 }

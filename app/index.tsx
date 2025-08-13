@@ -26,6 +26,9 @@ export default function HomeScreen() {
         sortedProducts,
         isLoading,
         isError,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
     } = useProductFilter();
 
     return (
@@ -60,6 +63,15 @@ export default function HomeScreen() {
                     data={sortedProducts}
                     keyExtractor={(item) => item.id.toString()}
                     estimatedItemSize={100}
+                    onEndReached={() => {
+                        if (hasNextPage) {
+                            fetchNextPage();
+                        }
+                    }}
+                    onEndReachedThreshold={0.5}
+                    ListFooterComponent={
+                        isFetchingNextPage ? <Spinner /> : null
+                    }
                     renderItem={({ item }) => (
                         <TouchableOpacity
                             style={styles.item}

@@ -6,11 +6,11 @@ import {
     Product,
 } from "./mapper";
 
-import { CategoryApiResponse, ProductsApiResponse } from "./types";
+import { CategoryApiResponse } from "./types";
 
-export const getProducts = async (): Promise<Product[]> => {
-    const res = await api.get<ProductsApiResponse>("/products");
-    return res.data.products.map(mapProductFromApi);
+export const getProducts = async (limit: number, skip: number) => {
+    const res = await api.get(`/products?limit=${limit}&skip=${skip}`);
+    return { products: res.data.products.map(mapProductFromApi), skip };
 };
 
 export const getCategories = async (): Promise<Category[]> => {
@@ -19,12 +19,14 @@ export const getCategories = async (): Promise<Category[]> => {
 };
 
 export const getProductsByCategory = async (
-    category: string
-): Promise<Product[]> => {
-    const res = await api.get<ProductsApiResponse>(
-        `/products/category/${category}`
+    category: string,
+    limit: number,
+    skip: number
+) => {
+    const res = await api.get(
+        `/products/category/${category}?limit=${limit}&skip=${skip}`
     );
-    return res.data.products.map(mapProductFromApi);
+    return { products: res.data.products.map(mapProductFromApi), skip };
 };
 
 export const getProductById = async (id: number | string): Promise<Product> => {
