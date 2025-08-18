@@ -68,12 +68,6 @@ export default function ProductDetailScreen() {
         <>
             <Stack.Screen options={{ title: product.title }} />
             <ScrollView contentContainerStyle={styles.container}>
-                {/* <Image
-                    source={product.thumbnail}
-                    style={styles.image}
-                    contentFit="contain"
-                    transition={100}
-                /> */}
                 <Carousel uris={product.images} />
 
                 <Text style={styles.title}>{product.title}</Text>
@@ -133,7 +127,6 @@ export default function ProductDetailScreen() {
                 <Text style={styles.returnPolicyTitle}>Return Policy</Text>
                 <Text style={styles.returnPolicy}>{product.returnPolicy}</Text>
 
-                {/* use the other properties of product and render them, like returnPolicy, dimensions */}
                 <ReviewSection reviews={product.reviews} />
             </ScrollView>
 
