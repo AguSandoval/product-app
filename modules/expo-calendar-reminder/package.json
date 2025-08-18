@@ -1,0 +1,26 @@
+{
+    "name": "expo-calendar-reminder",
+    "version": "1.0.0",
+    "description": "Native module to add product purchase reminders to iOS calendar",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "scripts": {
+        "build": "expo-module build"
+    },
+    "keywords": [
+        "expo",
+        "module",
+        "calendar",
+        "reminder",
+        "ios"
+    ],
+    "repository": "https://github.com/expo/expo",
+    "bugs": {
+        "url": "https://github.com/expo/expo/issues"
+    },
+    "author": "expo",
+    "license": "MIT",
+    "dependencies": {
+        "expo-calendar": "~14.0.2"
+    }
+}

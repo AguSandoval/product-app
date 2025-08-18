@@ -17,7 +17,9 @@
                     {
                         "CFBundleURLSchemes": ["productsapp"]
                     }
-                ]
+                ],
+                "NSCalendarsUsageDescription": "The app requires access to your calendar to create and modify product purchase reminders.",
+                "NSCalendarsFullAccessUsageDescription": "The app requires full access to your calendar to create and modify product purchase reminders."
             }
         },
         "android": {
@@ -48,6 +50,7 @@
         },
         "plugins": [
             "expo-router",
+            "expo-calendar",
             [
                 "expo-splash-screen",
                 {

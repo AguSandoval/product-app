@@ -1,5 +1,13 @@
-import { getProductById, Carousel, DimensionSection, QuantityBottomSheet, ReviewSection, getDiscountedPrice } from "@/features/products";
+import {
+    Carousel,
+    DimensionSection,
+    QuantityBottomSheet,
+    ReviewSection,
+    getDiscountedPrice,
+    getProductById,
+} from "@/features/products";
 import { MessageBox, Spinner } from "@/shared/components";
+import ProductReminder from "@/shared/components/ProductReminder";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -91,10 +99,10 @@ export default function ProductDetailScreen() {
                 </View>
 
                 <TouchableOpacity
-                    style={styles.buyButton}
+                    style={styles.button}
                     onPress={() => bottomSheetRef.current?.expand()}
                 >
-                    <Text style={styles.buyText}>Add to Cart</Text>
+                    <Text style={styles.buttonText}>Add to Cart</Text>
                 </TouchableOpacity>
 
                 <View style={{ alignItems: "center", marginTop: 8 }}>
@@ -115,6 +123,18 @@ export default function ProductDetailScreen() {
                             : "Out of stock"}
                     </Text>
                 </View>
+
+                <ProductReminder
+                    product={{
+                        id: product.id.toString(),
+                        name: product.title,
+                        price: getDiscountedPrice(
+                            product.price,
+                            product.discountPercentage
+                        ),
+                        description: product.description,
+                    }}
+                />
 
                 <DimensionSection dimensions={product.dimensions} />
 
@@ -206,7 +226,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: "#666",
     },
-    buyButton: {
+    button: {
         backgroundColor: "#131313",
         paddingVertical: 14,
         borderRadius: 16,
@@ -216,12 +236,15 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
-        marginVertical: 16,
+        marginVertical: 8,
     },
-    buyText: {
+    buttonText: {
         color: "#fff",
         fontSize: 18,
         fontWeight: "700",
+    },
+    calendarButton: {
+        backgroundColor: "#007AFF",
     },
     returnPolicyTitle: {
         fontSize: 24,
