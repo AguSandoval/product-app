@@ -1,4 +1,4 @@
-import { Product } from "@/api/products/mapper";
+import { Product } from "../api/mapper";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React from "react";

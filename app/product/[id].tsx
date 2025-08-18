@@ -1,11 +1,5 @@
-import { getProductById } from "@/api/products/services";
-import Carousel from "@/components/Carousel";
-import DimensionSection from "@/components/DimensionSection";
-import { MessageBox } from "@/components/MessageBox";
-import { getDiscountedPrice } from "@/components/ProductItem";
-import QuantityBottomSheet from "@/components/QuantityBottomSheet";
-import ReviewSection from "@/components/ReviewSection";
-import Spinner from "@/components/Spinner";
+import { getProductById, Carousel, DimensionSection, QuantityBottomSheet, ReviewSection, getDiscountedPrice } from "@/features/products";
+import { MessageBox, Spinner } from "@/shared/components";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import { Stack, useLocalSearchParams } from "expo-router";
