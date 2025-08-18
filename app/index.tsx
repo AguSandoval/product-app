@@ -1,5 +1,12 @@
-import { getCategories, CategoryFilter, ProductItem, ProductSortControls, useProductFilter } from "@/features/products";
+import {
+    CategoryFilter,
+    getCategories,
+    ProductItem,
+    ProductSortControls,
+    useProductFilter,
+} from "@/features/products";
 import { MessageBox, Spinner } from "@/shared/components";
+import { AnimatedListItem } from "@/shared/components/AnimatedListItem";
 
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
@@ -59,7 +66,11 @@ export default function HomeScreen() {
                 }}
                 onEndReachedThreshold={0.5}
                 ListFooterComponent={isFetchingNextPage ? <Spinner /> : null}
-                renderItem={({ item }) => <ProductItem product={item} />}
+                renderItem={({ item, index }) => (
+                    <AnimatedListItem index={index} itemId={item.id} delay={50}>
+                        <ProductItem product={item} />
+                    </AnimatedListItem>
+                )}
                 contentContainerStyle={{ paddingBottom: 120, paddingTop: 10 }}
                 ListEmptyComponent={() =>
                     !isLoading && !isError ? (
