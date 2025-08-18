@@ -1,6 +1,6 @@
-import { Category } from "@/api/products/mapper";
+import { Category } from "../api/mapper";
 import { ScrollView, StyleSheet } from "react-native";
-import Chip from "./Chip";
+import { Chip } from "@/shared/components/ui";
 
 interface CategoryFilterProps {
     categories: Category[];

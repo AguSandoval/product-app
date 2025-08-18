@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import Chip from "./Chip";
+import { Chip } from "@/shared/components/ui";
 
 type SortOption =
     | "price_asc"

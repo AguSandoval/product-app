@@ -1,10 +1,5 @@
-import { getCategories } from "@/api/products/services";
-import CategoryFilter from "@/components/CategoryFilter";
-import { MessageBox } from "@/components/MessageBox";
-import ProductItem from "@/components/ProductItem";
-import { ProductSortControls } from "@/components/ProductSortControls";
-import Spinner from "@/components/Spinner";
-import { useProductFilter } from "@/hooks/useProductFilter";
+import { getCategories, CategoryFilter, ProductItem, ProductSortControls, useProductFilter } from "@/features/products";
+import { MessageBox, Spinner } from "@/shared/components";
 
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";

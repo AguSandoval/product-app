@@ -1,4 +1,4 @@
-import { Product } from "@/api/products/mapper";
+import { Product } from "../api/mapper";
 import BottomSheet, {
     BottomSheetBackdrop,
     BottomSheetBackdropProps,

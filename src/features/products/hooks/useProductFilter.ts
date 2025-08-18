@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 
-import { Product } from "@/api/products/mapper";
-import { getProducts, getProductsByCategory } from "@/api/products/services";
+import { Product } from "../api/mapper";
+import { getProducts, getProductsByCategory } from "../api/services";
 
 type SortOption =
     | "price_asc"
