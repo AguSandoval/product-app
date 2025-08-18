@@ -1,15 +1,28 @@
 import { getProductById } from "@/api/products/services";
+import Carousel from "@/components/Carousel";
+import DimensionSection from "@/components/DimensionSection";
 import { MessageBox } from "@/components/MessageBox";
+import { getDiscountedPrice } from "@/components/ProductItem";
+import QuantityBottomSheet from "@/components/QuantityBottomSheet";
+import ReviewSection from "@/components/ReviewSection";
 import Spinner from "@/components/Spinner";
+import BottomSheet from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
-import { Image } from "expo-image";
 import { Stack, useLocalSearchParams } from "expo-router";
-
-import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useCallback, useRef, useState } from "react";
+import {
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 export default function ProductDetailScreen() {
-    const { id, title } = useLocalSearchParams<{ id: string; title: string }>();
+    const { id } = useLocalSearchParams<{ id: string }>();
+    const [quantity, setQuantity] = useState(1);
+    const bottomSheetRef = useRef<BottomSheet>(null);
 
     const {
         data: product,
@@ -20,6 +33,21 @@ export default function ProductDetailScreen() {
         queryFn: () => getProductById(id),
         enabled: !!id,
     });
+
+    const handleConfirm = useCallback(() => {
+        Alert.alert("Hi there!", `Thanks for testing this app`, [
+            {
+                text: "Cancel",
+                style: "cancel",
+            },
+            {
+                text: "OK",
+                onPress: () => {
+                    bottomSheetRef.current?.close();
+                },
+            },
+        ]);
+    }, []);
 
     if (isLoading) {
         return <Spinner withOverlay />;
@@ -38,39 +66,93 @@ export default function ProductDetailScreen() {
 
     return (
         <>
-            <Stack.Screen options={{ title }} />
+            <Stack.Screen options={{ title: product.title }} />
             <ScrollView contentContainerStyle={styles.container}>
-                <Image
+                {/* <Image
                     source={product.thumbnail}
                     style={styles.image}
                     contentFit="contain"
-                    transition={{
-                        duration: 100,
-                        timing: "ease-in-out",
-                        effect: "cross-dissolve",
-                    }}
-                />
+                    transition={100}
+                /> */}
+                <Carousel uris={product.images} />
+
                 <Text style={styles.title}>{product.title}</Text>
-                <Text style={styles.brand}>Brand: {product.brand}</Text>
-                <Text style={styles.price}>Price: ${product.price}</Text>
-                <Text style={styles.stock}>
-                    {product.stock > 0
-                        ? `Availability: ${product.stock}`
-                        : "Out of stock"}
-                </Text>
+                <View style={styles.priceContainer}>
+                    <Text style={styles.price}>
+                        $
+                        {getDiscountedPrice(
+                            product.price,
+                            product.discountPercentage
+                        ).toFixed(2)}
+                    </Text>
+                    <Text style={styles.priceLined}>${product.price}</Text>
+                </View>
                 <Text style={styles.description}>{product.description}</Text>
+
+                <View style={styles.ratingContainer}>
+                    <Text style={styles.ratingValue}>
+                        {product.rating.toFixed(1)}
+                    </Text>
+                    <Text style={styles.stars}>
+                        {"★".repeat(Math.round(product.rating))}
+                        {"☆".repeat(5 - Math.round(product.rating))}
+                    </Text>
+                    <Text style={styles.ratingCount}>
+                        ({product.reviews.length})
+                    </Text>
+                </View>
+
+                <TouchableOpacity
+                    style={styles.buyButton}
+                    onPress={() => bottomSheetRef.current?.expand()}
+                >
+                    <Text style={styles.buyText}>Add to Cart</Text>
+                </TouchableOpacity>
+
+                <View style={{ alignItems: "center", marginTop: 8 }}>
+                    {product.brand ? (
+                        <Text style={styles.brand}>Brand: {product.brand}</Text>
+                    ) : null}
+                    <Text
+                        style={[
+                            styles.stock,
+                            {
+                                color:
+                                    product.stock > 0 ? "#007700" : "#b00020",
+                            },
+                        ]}
+                    >
+                        {product.stock > 0
+                            ? `In stock: ${product.stock}`
+                            : "Out of stock"}
+                    </Text>
+                </View>
+
+                <DimensionSection dimensions={product.dimensions} />
+
+                <Text style={styles.returnPolicyTitle}>Return Policy</Text>
+                <Text style={styles.returnPolicy}>{product.returnPolicy}</Text>
+
+                {/* use the other properties of product and render them, like returnPolicy, dimensions */}
+                <ReviewSection reviews={product.reviews} />
             </ScrollView>
+
+            <QuantityBottomSheet
+                bottomSheetRef={bottomSheetRef}
+                product={product}
+                quantity={quantity}
+                setQuantity={setQuantity}
+                handleConfirm={handleConfirm}
+            />
         </>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        padding: 16,
+        paddingHorizontal: 16,
         backgroundColor: "#fff",
-    },
-    loading: {
-        marginTop: 40,
+        paddingBottom: 40,
     },
     center: {
         flex: 1,
@@ -78,38 +160,90 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 16,
     },
-    errorText: {
-        color: "#b00020",
-        fontSize: 16,
-    },
-    image: {
-        width: "100%",
-        height: 300,
-        borderRadius: 8,
-        marginBottom: 16,
-    },
     title: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: "700",
-        marginBottom: 8,
+        color: "#222",
+        textAlign: "center",
     },
     brand: {
-        fontSize: 16,
-        fontWeight: "500",
+        fontSize: 14,
+        color: "#666",
         marginBottom: 4,
+    },
+    priceContainer: {
+        flexDirection: "row",
+        alignItems: "baseline",
+        justifyContent: "center",
+        gap: 4,
+        marginVertical: 16,
     },
     price: {
-        fontSize: 20,
+        fontSize: 28,
         fontWeight: "600",
-        marginBottom: 4,
+        color: "#111",
+        textAlign: "center",
+    },
+    priceLined: {
+        color: "#666",
+        fontSize: 14,
+        textDecorationLine: "line-through",
     },
     stock: {
-        fontSize: 16,
+        fontSize: 14,
         marginBottom: 12,
-        color: "#007700",
     },
     description: {
         fontSize: 16,
-        color: "#444",
+        color: "#666",
+        lineHeight: 22,
+        textAlign: "center",
+    },
+    ratingContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        marginVertical: 8,
+    },
+    ratingValue: {
+        fontSize: 14,
+        color: "#333",
+        marginRight: 4,
+    },
+    stars: {
+        fontSize: 14,
+        color: "#f5a623",
+        marginRight: 4,
+    },
+    ratingCount: {
+        fontSize: 12,
+        color: "#666",
+    },
+    buyButton: {
+        backgroundColor: "#131313",
+        paddingVertical: 14,
+        borderRadius: 16,
+        alignItems: "center",
+        elevation: 4,
+        shadowColor: "#131313",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        marginVertical: 16,
+    },
+    buyText: {
+        color: "#fff",
+        fontSize: 18,
+        fontWeight: "700",
+    },
+    returnPolicyTitle: {
+        fontSize: 24,
+        fontWeight: "700",
+        color: "#222",
+    },
+    returnPolicy: {
+        color: "#666",
+        marginTop: 8,
+        paddingBottom: 16,
     },
 });

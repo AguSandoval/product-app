@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import SortButton from "./SortButton";
+import Chip from "./Chip";
 
 type SortOption =
     | "price_asc"
@@ -18,10 +18,11 @@ export function ProductSortControls({ sortOption, onChangeSort }: Props) {
     function renderButton(label: string, option: SortOption) {
         const active = sortOption === option;
         return (
-            <SortButton
+            <Chip
                 key={option}
-                label={label}
-                active={active}
+                text={label}
+                size="md"
+                selected={active}
                 onPress={() => onChangeSort(active ? null : option)}
             />
         );

@@ -1,8 +1,9 @@
-import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 
 export default function RootLayout() {
@@ -16,13 +17,35 @@ export default function RootLayout() {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <ThemeProvider value={DefaultTheme}>
-                <Stack>
-                    <Stack.Screen name="product/[id]" options={{ title: "" }} />
-                    <Stack.Screen name="+not-found" />
-                </Stack>
-                <StatusBar style="auto" />
-            </ThemeProvider>
+            <GestureHandlerRootView>
+                <ThemeProvider
+                    value={{
+                        ...DarkTheme,
+                        colors: { ...DarkTheme.colors, background: "#fff" },
+                    }}
+                >
+                    <Stack
+                        screenOptions={{
+                            headerTintColor: "#131313",
+                            headerBackButtonDisplayMode: "minimal",
+                            headerStyle: {
+                                backgroundColor: "#ffea00",
+                            },
+                        }}
+                    >
+                        <Stack.Screen
+                            name="index"
+                            options={{ title: "Products" }}
+                        />
+                        <Stack.Screen
+                            name="product/[id]"
+                            options={{ title: "" }}
+                        />
+                        <Stack.Screen name="+not-found" />
+                    </Stack>
+                    <StatusBar style="auto" />
+                </ThemeProvider>
+            </GestureHandlerRootView>
         </QueryClientProvider>
     );
 }

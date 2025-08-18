@@ -1,16 +1,15 @@
 import { getCategories } from "@/api/products/services";
-import { CategoryFilter } from "@/components/CategoryFilter";
+import CategoryFilter from "@/components/CategoryFilter";
 import { MessageBox } from "@/components/MessageBox";
+import ProductItem from "@/components/ProductItem";
 import { ProductSortControls } from "@/components/ProductSortControls";
 import Spinner from "@/components/Spinner";
 import { useProductFilter } from "@/hooks/useProductFilter";
 
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
-import { Image } from "expo-image";
-import { router } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 export default function HomeScreen() {
     const categoriesQuery = useQuery({
@@ -20,15 +19,15 @@ export default function HomeScreen() {
 
     const {
         selectedCategory,
-        setSelectedCategory,
         sortOption,
-        setSortOption,
         sortedProducts,
         isLoading,
         isError,
-        fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
+        setSelectedCategory,
+        setSortOption,
+        fetchNextPage,
     } = useProductFilter();
 
     return (
@@ -54,92 +53,39 @@ export default function HomeScreen() {
                 />
             )}
 
-            <View
-                style={{
-                    flex: 1,
+            <FlashList
+                data={sortedProducts}
+                keyExtractor={(item) => item.id.toString()}
+                estimatedItemSize={100}
+                onEndReached={() => {
+                    if (hasNextPage) {
+                        fetchNextPage();
+                    }
                 }}
-            >
-                <FlashList
-                    data={sortedProducts}
-                    keyExtractor={(item) => item.id.toString()}
-                    estimatedItemSize={100}
-                    onEndReached={() => {
-                        if (hasNextPage) {
-                            fetchNextPage();
-                        }
-                    }}
-                    onEndReachedThreshold={0.5}
-                    ListFooterComponent={
-                        isFetchingNextPage ? <Spinner /> : null
-                    }
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={styles.item}
-                            onPress={() =>
-                                router.push({
-                                    pathname: `/product/[id]`,
-                                    params: {
-                                        id: item.id.toString(),
-                                        title: item.title || "",
-                                    },
-                                })
-                            }
-                        >
-                            <Image
-                                source={item.thumbnail}
-                                style={styles.thumbnail}
-                                contentFit="contain"
-                                transition={{
-                                    duration: 100,
-                                    timing: "ease-in-out",
-                                    effect: "cross-dissolve",
-                                }}
-                            />
-                            <View style={styles.info}>
-                                <Text numberOfLines={1} style={styles.title}>
-                                    {item.title}
-                                </Text>
-                                <Text style={styles.price}>${item.price}</Text>
-                            </View>
-                        </TouchableOpacity>
-                    )}
-                    contentContainerStyle={{ paddingBottom: 120 }}
-                    ListEmptyComponent={() =>
-                        !isLoading && !isError ? (
-                            <MessageBox
-                                type="empty"
-                                message="No products found."
-                            />
-                        ) : null
-                    }
-                />
-            </View>
+                onEndReachedThreshold={0.5}
+                ListFooterComponent={isFetchingNextPage ? <Spinner /> : null}
+                renderItem={({ item }) => <ProductItem product={item} />}
+                contentContainerStyle={{ paddingBottom: 120, paddingTop: 10 }}
+                ListEmptyComponent={() =>
+                    !isLoading && !isError ? (
+                        <MessageBox type="empty" message="No products found." />
+                    ) : null
+                }
+            />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#fff" },
+    container: { flex: 1, backgroundColor: "#f4f4f4" },
     header: {
-        paddingVertical: 8,
-        backgroundColor: "#fff",
-        borderBottomWidth: 1,
-        borderBottomColor: "#eee",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
+        paddingTop: 8,
         zIndex: 100,
+        backgroundColor: "#f4f4f4",
+        shadowColor: "#f4f4f4",
+        shadowOffset: { width: 0, height: 16 },
+        shadowOpacity: 1,
+        shadowRadius: 4,
+        elevation: 1,
     },
-    item: {
-        flexDirection: "row",
-        padding: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: "#f2f2f2",
-    },
-    thumbnail: { width: 64, height: 64, borderRadius: 6 },
-    info: { marginLeft: 12, justifyContent: "center", flex: 1 },
-    title: { fontSize: 16, fontWeight: "600" },
-    price: { color: "#666", marginTop: 4 },
 });
