@@ -53,6 +53,7 @@ export default function HomeScreen() {
                         data={Array.from({ length: 4 })}
                         renderItem={() => <ProductItemSkeleton />}
                         scrollEnabled={false}
+                        estimatedItemSize={100}
                         contentContainerStyle={{
                             paddingTop: 10,
                         }}
