@@ -5,6 +5,7 @@ import {
     ProductSortControls,
     useProductFilter,
 } from "@/features/products";
+import ProductItemSkeleton from "@/features/products/components/ProductItemSkeleton";
 import { MessageBox, Spinner } from "@/shared/components";
 import { AnimatedListItem } from "@/shared/components/AnimatedListItem";
 
@@ -46,7 +47,19 @@ export default function HomeScreen() {
                 />
             </View>
 
-            {isLoading && <Spinner withOverlay />}
+            {isLoading && (
+                <>
+                    <FlashList
+                        data={Array.from({ length: 4 })}
+                        renderItem={() => <ProductItemSkeleton />}
+                        scrollEnabled={false}
+                        contentContainerStyle={{
+                            paddingTop: 10,
+                        }}
+                        keyExtractor={(_, index) => index.toString()}
+                    />
+                </>
+            )}
 
             {isError && (
                 <MessageBox
@@ -55,29 +68,51 @@ export default function HomeScreen() {
                 />
             )}
 
-            <FlashList
-                data={sortedProducts}
-                keyExtractor={(item) => item.id.toString()}
-                estimatedItemSize={100}
-                onEndReached={() => {
-                    if (hasNextPage) {
-                        fetchNextPage();
+            {!isLoading && (
+                <FlashList
+                    data={sortedProducts}
+                    keyExtractor={(item) => item.id.toString()}
+                    estimatedItemSize={100}
+                    onEndReached={() => {
+                        if (hasNextPage) {
+                            fetchNextPage();
+                        }
+                    }}
+                    onEndReachedThreshold={0.5}
+                    ListFooterComponent={
+                        isFetchingNextPage ? (
+                            <View
+                                style={{
+                                    marginTop: 48,
+                                }}
+                            >
+                                <Spinner />
+                            </View>
+                        ) : null
                     }
-                }}
-                onEndReachedThreshold={0.5}
-                ListFooterComponent={isFetchingNextPage ? <Spinner /> : null}
-                renderItem={({ item, index }) => (
-                    <AnimatedListItem index={index} itemId={item.id} delay={50}>
-                        <ProductItem product={item} />
-                    </AnimatedListItem>
-                )}
-                contentContainerStyle={{ paddingBottom: 120, paddingTop: 10 }}
-                ListEmptyComponent={() =>
-                    !isLoading && !isError ? (
-                        <MessageBox type="empty" message="No products found." />
-                    ) : null
-                }
-            />
+                    renderItem={({ item, index }) => (
+                        <AnimatedListItem
+                            index={index}
+                            itemId={item.id}
+                            delay={50}
+                        >
+                            <ProductItem product={item} />
+                        </AnimatedListItem>
+                    )}
+                    contentContainerStyle={{
+                        paddingBottom: 120,
+                        paddingTop: 10,
+                    }}
+                    ListEmptyComponent={() =>
+                        !isLoading && !isError ? (
+                            <MessageBox
+                                type="empty"
+                                message="No products found."
+                            />
+                        ) : null
+                    }
+                />
+            )}
         </View>
     );
 }

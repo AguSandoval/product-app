@@ -22,8 +22,8 @@ const iconsDefault = {
 };
 
 const backgroundColors = {
-    error: "#fdecea",
-    empty: "#f1f1f1",
+    error: "#f4dedb",
+    empty: "#dfdfdf",
     info: "#dbeafe",
 };
 
